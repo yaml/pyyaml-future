@@ -1,0 +1,9 @@
+python3 test.py
+I:
+  say: hello
+XXX-!@ref: =*some/foo
+base: ball
+foo: 42
+food: pie
+name: Bob
+
