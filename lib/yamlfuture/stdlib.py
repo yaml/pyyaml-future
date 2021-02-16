@@ -70,7 +70,7 @@ class Library:
 
         loader.add_constructor(
             '!+ref',
-            self.add_transform_ref(loader))
+            self.__class__.transform_ref)
 
         loader.add_constructor(
             '!+render',
@@ -78,26 +78,32 @@ class Library:
 
         loader.add_constructor(
             '!+_deref',
-            self.__class__.transform_deref)
+            self.__class__._transform_deref)
+
+        loader.add_constructor(
+            '!+_ref-find',
+            self.__class__._transform_ref_find)
 
 
-
-    def add_transform_ref(self, loader):
-        #print(11, loader, loader.anchors)
-        def transform_ref(this, node):
-            return this.construct_object(
-                self.parse_ref(node)
-            )
-        return transform_ref
 
     @classmethod
-    def transform_deref(cls, self, node):
-        print(22, node)
+    def transform_ref(cls, self, node):
+        return self.construct_object(
+            self.library.parse_ref(node)
+        )
+
+    @classmethod
+    def _transform_deref(cls, self, node):
+        print(22, self)
         array = node.value
         self.deref_data = None
-        for func in array[1:]:
+        for func in array:
             self.deref_data = self.construct_object(func, True)
-        XXX(self.deref_data)
+        return self.deref_data
+
+    @classmethod
+    def _transform_ref_find(cls, self, node):
+        return self.deref_data.get(node.value)
 
     def parse_ref(self, node):
         parse = SequenceNode('!+_deref', [])
@@ -112,20 +118,9 @@ class Library:
             elif find is not None:
                 ref = ref[find.end():]
                 key = find.group(1)
-                parse.value.append(ScalarNode('!++ref-find', key))
+                parse.value.append(ScalarNode('!+_ref-find', key))
 
             else:
                 XXX(ref)
 
         return parse
-        return MappingNode(
-            tag='tag:yaml.org,2002:map',
-            value=[(
-                ScalarNode(tag='tag:yaml.org,2002:str', value='qwerty'),
-                ScalarNode(tag='tag:yaml.org,2002:str', value='qwerty'))])
-        # SequenceNode(
-        #   tag='!+_dereference',
-        #   value=[
-        #     ScalarNode(tag='tag:yaml.org,2002:int', value='123'),
-        #     ScalarNode(tag='!ref-find', value='foo'
-
