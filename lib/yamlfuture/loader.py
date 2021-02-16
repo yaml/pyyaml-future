@@ -1,7 +1,7 @@
 from .xxx import *
 __all__ = ['Loader']
 
-from yaml import SafeLoader, representer
+from yaml import SafeLoader, composer, representer
 
 from .stdlib import Library
 
@@ -20,10 +20,17 @@ class Loader(SafeLoader):
 
         self.library = Library(self)
 
-        return self.get_single_data()
+        data = self.get_single_data()
+        return data
 
     def set_anchors(self, anchors):
-        self.anchors = {'__future__':'123'}
+        self.anchors = {}
 
         for key in anchors:
             self.anchors[key] = self.represent(anchors[key])
+
+    def compose_document(self):
+        anchors = self.anchors
+        node = composer.Composer.compose_document(self)
+        self.anchors = anchors
+        return node

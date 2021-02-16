@@ -70,7 +70,7 @@ class Library:
 
         loader.add_constructor(
             '!+ref',
-            self.__class__.transform_ref)
+            self.add_transform_ref(loader))
 
         loader.add_constructor(
             '!+render',
@@ -82,18 +82,22 @@ class Library:
 
 
 
-    @classmethod
-    def transform_ref(cls, self, node):
-        return self.construct_object(
-            self.library.parse_ref(node)
-        )
+    def add_transform_ref(self, loader):
+        #print(11, loader, loader.anchors)
+        def transform_ref(this, node):
+            return this.construct_object(
+                self.parse_ref(node)
+            )
+        return transform_ref
 
     @classmethod
     def transform_deref(cls, self, node):
-        print(node)
-        return self.construct_object(node.value, True)
-
-
+        print(22, node)
+        array = node.value
+        self.deref_data = None
+        for func in array[1:]:
+            self.deref_data = self.construct_object(func, True)
+        XXX(self.deref_data)
 
     def parse_ref(self, node):
         parse = SequenceNode('!+_deref', [])
@@ -105,9 +109,15 @@ class Library:
                 ref = ref[alias.end():]
                 name = alias.group(1)
                 parse.value.append(self.loader.anchors[name])
+            elif find is not None:
+                ref = ref[find.end():]
+                key = find.group(1)
+                parse.value.append(ScalarNode('!++ref-find', key))
+
             else:
                 XXX(ref)
 
+        return parse
         return MappingNode(
             tag='tag:yaml.org,2002:map',
             value=[(
