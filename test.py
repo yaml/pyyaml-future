@@ -1,21 +1,27 @@
 import yaml
-from yamlfeatureloaders import *
+from yamlfuture import Loader
 
-yaml_stream = """\
+stream = """\
 # A merge of 5 mappings into one:
---- !@merge             # map merging transform
-- *base                 # an alias ref with no anchor here
-- =*some/foo            # a ypath query based off an anchor
-- !@import other.yaml   # a yaml file (mapping) import
-- !@render [ t1.yaml,   # an external template rendering
-    xxx: hello ]
-- foo: 42               # local data to merge
+merged: !+merge           # map merging transform
+  - *base                 # an alias ref with no anchor here
+#   - +*some/foo            # a ypath query based off an anchor
+  - !+import other.yaml   # a yaml file (mapping) import
+  - !+render [ t1.yaml,   # an external template rendering
+      xxx: hello ]
+  - foo: 42               # local data to merge
+  - greet: !+ |           # string expansion
+      Hello {*name}!
+
 """
 
-loader = TransformLoader()
-loader.set_anchors({
+anchors = {
     'base': {'base': 'ball'},
-})
-data = loader.load(yaml_stream)
+    'some': {'foo': {'some': 'thing'}},
+}
 
-print(yaml.dump(data))
+loader = Loader()
+
+data = loader.load(stream, anchors=anchors)
+
+print(yaml.dump(data, sort_keys=False))

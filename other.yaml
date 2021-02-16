@@ -1,2 +1,6 @@
 name: Bob
 food: pie
+phrase: +`{:name} likes {:food}`
+poem: !+ |
+  There once was a person called {*:name},
+  They liked to eat {*:food}.
