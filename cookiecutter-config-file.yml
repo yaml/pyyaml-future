@@ -1,0 +1,10 @@
+# This file contains values from Cookiecutter
+
+default_context:
+  project_name: "pyyaml-future"
+  project_description: "Use YAML 1.3 Features in PyYAML (YAML 1.1)"
+  organization: "Ingy döt Net"
+  license: "MIT"
+  version: "0.0.1"
+  github_name: "yaml"
+  email: "ingy@ingy.net"
