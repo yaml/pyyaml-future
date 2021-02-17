@@ -44,6 +44,42 @@ More features and documentation coming soon.
 
 ## Features
 
+YAML 1.3 adds optional "language features" that you can request that a parser
+use.
+Some of the planned ones are:
+
+* Standard Library node functions:
+  ```
+  - @merge(*base)
+    foo: 42
+  - stuff: @import stuff.yaml
+  ```
+
+* String expansion (interpolation):
+  ```
+  greeting: `Hello {*name}`
+  ```
+
+* Extended aliases with YPath:
+  ```
+  total: @sum(*nums/x, $*nums/y)
+  ```
+
+In current PyYAML we can emulate these with tags and implicit typing, as long
+as we don't use invalid YAML 1.1 syntax.
+
+For `@func(1,2)` we use `!func [1,2]`
+
+For `*alias/path/value` we use `+*alias/path/value`.
+
+For interpolation we use `!+ Hello {*name}` instead of backticks.
+
+YAML 1.3 actually parses these new things into the same event model.
+IOW, a 1.3 parser would report `@foo(*bar,42)` as `!foo [*bar, 42]`.
+Just with a cleaner syntax.
+
+### yamlfuture current features
+
 * Merge a sequence of mappings:
   ```
   merged: !+merge [*map1, *map2, foo: bar]
@@ -60,7 +96,7 @@ More features and documentation coming soon.
   value: &foo
     yaml: future
   when: +*foo/yaml
-  absolute: /foo/0/bar
+  absolute: +*/foo/0/bar
   siblings:
     a: 2
     b: 4
@@ -92,6 +128,7 @@ More features and documentation coming soon.
 ## License & Copyright
 
 This project is licensed under the terms of the `MIT` license.
-See [LICENSE](https://github.com/yaml/pyyaml-future/blob/main/LICENSE) for more details.
+See [LICENSE](https://github.com/yaml/pyyaml-future/blob/main/LICENSE) for more
+details.
 
 Copyright 2021 Ingy döt Net <ingy@ingy.net>

@@ -4,7 +4,7 @@ ROOT := $(shell pwd)
 PYTHON := $(shell command -v python3)
 PYTHON ?= $(shell command -v python)
 
-VERSION := $(shell grep version setup.py | cut -d"'" -f2)
+VERSION := $(shell head -n1 setup.py | cut -d"'" -f2)
 
 export PYTHONPATH := $(ROOT)/lib
 
@@ -32,10 +32,10 @@ publish: dist
 	twine upload -u $${PYPI_USER:-$$USER} dist/*
 
 tag:
+	-git add . && git commit -m $(VERSION)
 	git tag $(VERSION)
 
 push:
-	-git add . && git commit -m $(VERSION)
 	-git push
 	-git push --tag
 

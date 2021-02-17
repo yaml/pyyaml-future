@@ -1,3 +1,5 @@
+version = '0.0.3'
+
 from setuptools import setup
 import pathlib
 
@@ -9,7 +11,7 @@ long_description = \
 
 setup(
   name = 'pyyaml-future',
-  version = '0.0.2',
+  version = version,
   description = 'Use YAML 1.3 Features in PyYAML (YAML 1.1)',
   license = 'MIT',
   url = 'https://github.com/yaml/pyyaml-future',
