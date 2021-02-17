@@ -83,12 +83,12 @@ class Library:
 
         loader.add_implicit_resolver(
             '!+',
-            re.compile('^\+.*\{'),
+            re.compile(r'^\+.*\{'),
             None)
 
         loader.add_implicit_resolver(
             '!+ref',
-            re.compile('^\+\*'),
+            re.compile(r'^\+\*'),
             None)
 
         loader.add_constructor(
@@ -137,9 +137,9 @@ class Library:
         else:
             ref = node.value[1:]
         while len(ref) > 0:
-            alias = re.match('\*(\w+)', ref)
-            sibling = re.match('\*:(\w+)', ref)
-            find = re.match('/(\w+)', ref)
+            alias = re.match(r'\*(\w+)', ref)
+            sibling = re.match(r'\*:(\w+)', ref)
+            find = re.match(r'/(\w+)', ref)
             if alias is not None:
                 ref = ref[alias.end():]
                 name = alias.group(1)
@@ -161,12 +161,12 @@ class Library:
     def parse_expansion(self, node):
         parse = SequenceNode('!+join', [])
         scalar = node.value[0:]
-        scalar = re.sub('^\+`', '', scalar)
-        scalar = re.sub('^`', '', scalar)
-        scalar = re.sub('`$', '', scalar)
+        scalar = re.sub(r'^\+`', '', scalar)
+        scalar = re.sub(r'^`', '', scalar)
+        scalar = re.sub(r'`$', '', scalar)
         while len(scalar) > 0:
-            string = re.match('([^\{]+)', scalar)
-            expand = re.match('\{(.*?)\}', scalar)
+            string = re.match(r'([^\{]+)', scalar)
+            expand = re.match(r'\{(.*?)\}', scalar)
             if string is not None:
                 scalar = scalar[string.end():]
                 text = string.group(1)

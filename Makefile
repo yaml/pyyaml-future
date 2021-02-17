@@ -1,18 +1,74 @@
 SHELL := bash
+ROOT := $(shell pwd)
 
-VERSION := 0.0.1
+PYTHON := $(shell command -v python3)
+PYTHON ?= $(shell command -v python)
+
+VERSION := $(shell grep version setup.py | cut -d"'" -f2)
+
+export PYTHONPATH := $(ROOT)/lib
+
 
 default:
+	@echo $(VERSION)
 
-dist:
-	python3 setup.py sdist
+test: venv
+	pytest -v test/*.py
+
+pkg-test: venv
+	make clean
+	make test
+	make dist
+	pip install dist/pyyaml-future-*.tar.gz
+	tar xzf dist/pyyaml-future-*.tar.gz
+	cat pyyaml-future-*/PKG-INFO
+
+dist: venv MANIFEST.in .long_description.md
+	$(PYTHON) setup.py sdist
+
+release: publish tag push
 
 publish: dist
-	twine upload dist/*
+	twine upload -u $${PYPI_USER:-$$USER} dist/*
 
-test:
-	poetry run pytest
+tag:
+	git tag $(VERSION)
+
+push:
+	-git add . && git commit -m $(VERSION)
+	-git push
+	-git push --tag
 
 clean:
-	rm -rf dist .pytest_cache
-	find . -name '*pycache*' | xargs rm -fr
+	rm -f MANIFEST* .long_description.md
+	rm -fr dist/ .pytest_cache/ pyyaml-future-0.*/
+	rm -fr lib/pyyaml_future.egg-info/
+	find . -name '__pycache__' | xargs rm -fr
+
+realclean: clean
+	rm -fr .venv/
+
+venv: .venv
+	@[[ $$VIRTUAL_ENV == $$PWD/.venv ]] || { \
+	    echo "Run 'source .venv/bin/activate'"; \
+	    exit 1; \
+	}
+
+.venv:
+	$(PYTHON) -mvenv $@
+	source .venv/bin/activate && \
+	    pip install \
+	        pytest \
+		pyyaml \
+		twine
+
+MANIFEST.in:
+	echo 'include ReadMe.md' > $@
+	echo 'include .long_description.md' >> $@
+
+.long_description.md: ReadMe.md
+	cat $< | \
+	    grep -A999 '## Synopsis' | \
+	    grep -B999 '## Features' | \
+	    head -n-2 \
+	> $@

@@ -1,0 +1,9 @@
+/.venv/
+/dist/
+/MANIFEST
+/MANIFEST.in
+/.long_description.md
+/.pytest_cache/
+__pycache__/
+pyyaml_future.egg-info/
+/pyyaml-future-*/

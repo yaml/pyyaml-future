@@ -10,25 +10,84 @@ from yamlfuture import Loader
 
 Loader.anchors = {'name': 'YAML'}
 
-text = """\
+stream = """\
+---
 greeting: !+ |
   Hello {*name}.
   Welcome to the future!
+copyright: !+import [../data.yaml, /copyright/year]
+
 """
 
-print(yaml.dump(yaml.load(text, Loader))
+print(yaml.dump(yaml.load(stream, Loader))
 ```
+
+## Status
+
+This module is *very* **ALPHA**.
+
+YAML 1.3 is still being defined.
+As the various features of the YAML 1.3 evolve, `yamlfuture` will evolve.
+
+Use with caution for now.
 
 ## Description
 
-YAML 1.3 is bringing excited new features to YAML (while keeping the YAML you
+YAML 1.3 is bringing exciting new features to YAML (while keeping the YAML you
 know and love (or hate) the same).
 
 This package lets you use the new features (or close approximations) in PyYAML
 now.
 
-This is the first release.
+This is a very early release.
 More features and documentation coming soon.
+
+## Features
+
+* Merge a sequence of mappings:
+  ```
+  merged: !+merge [*map1, *map2, foo: bar]
+  ```
+
+* Define anchors (from Python) outside the YAML stream:
+  ```
+  Loader.anchors = {"name": "world"}
+  yaml.load("hello: *name", Loader)
+  ```
+
+* Use aliases with paths:
+  ```
+  value: &foo
+    yaml: future
+  when: +*foo/yaml
+  absolute: /foo/0/bar
+  siblings:
+    a: 2
+    b: 4
+    all: [+*:a, +*:b]
+  foo: { bar: +*../../siblings/a }
+  ```
+
+* String interpolation:
+  ```
+  greeting: !+ Hello {*name}!
+  ```
+
+* Import other YAML files into any node:
+  ```
+  foo: !+import foo.yaml
+  bar: !+import [foo.yaml, /0/bar]
+  ```
+
+* Import/render external "template" yaml files:
+  ```
+  # file 'template.yaml'
+  foo:
+    bar: *value
+
+  # file 'main.yaml'
+  foo bar: !+render [template.yaml, value: baz]
+  ```
 
 ## License & Copyright
 
