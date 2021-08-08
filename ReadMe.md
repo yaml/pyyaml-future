@@ -8,17 +8,21 @@ Use YAML 1.3 Features in PyYAML (YAML 1.1)
 import yaml
 from yamlfuture import Loader
 
+# Define your own anchors:
 Loader.anchors = {'name': 'YAML'}
+# !import relative to this:
+Loader.filepath = __file__
 
-stream = """\
+yamlstream = """\
 ---
 greeting: !+ |
   Hello {*name}.
   Welcome to the future!
+
 copyright: !import [../data.yaml, /copyright/year]
 """
 
-print(yaml.dump(yaml.load(stream, Loader))
+print(yaml.dump(yaml.load(yamlstream, Loader))
 ```
 
 ## Status

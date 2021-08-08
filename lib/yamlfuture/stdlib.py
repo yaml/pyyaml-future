@@ -9,10 +9,13 @@ class Library:
         self.add_constructors()
 
     @classmethod
-    def _import_file_path(cls, self, path):
+    def _read_import_file(cls, self, path):
         if self.importpath is None:
             raise Exception("Loader.filepath not set")
-        return os.path.join(self.importpath, path)
+        importpath = os.path.join(self.importpath, path)
+        with open(importpath, 'r') as stream:
+            text = stream.read()
+        return text
 
     @classmethod
     def transform_expand(cls, self, node):
@@ -22,11 +25,10 @@ class Library:
 
     @classmethod
     def transform_import(cls, self, node):
-        path = cls._import_file_path(self, node.value)
-        with open(path, 'r') as stream:
-            from . import Loader
-            loader = Loader(stream)
-            return loader.get_single_data()
+        stream = cls._read_import_file(self, node.value)
+        from . import Loader
+        loader = Loader(stream)
+        return loader.get_single_data()
 
     @classmethod
     def transform_join(cls, self, node):
@@ -53,12 +55,11 @@ class Library:
             pairs = mapping.value
             for pair in pairs:
                 anchors[pair[0].value] = pair[1]
-        path = cls._import_file_path(self, node.value[0].value)
-        with open(path, 'r') as stream:
-            from . import Loader
-            loader = Loader(stream)
-            loader.anchors = anchors
-            return loader.get_single_data()
+        stream = cls._read_import_file(self, node.value[0].value)
+        from . import Loader
+        loader = Loader(stream)
+        loader.anchors = anchors
+        return loader.get_single_data()
 
     @classmethod
     def transform_ref(cls, self, node):

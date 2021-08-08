@@ -17,7 +17,7 @@ class Loader(SafeLoader):
         if Loader.anchors is not None:
             self.set_anchors(Loader.anchors)
         if Loader.filepath is None:
-            self.importpath = None
+            self.importpath = os.getcwd()
         else:
             self.importpath = os.path.abspath(
                 os.path.dirname(Loader.filepath))
