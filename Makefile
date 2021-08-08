@@ -12,7 +12,9 @@ export PYTHONPATH := $(ROOT)/lib
 default:
 	@echo $(VERSION)
 
-test: venv
+.PHONY: test
+test: .venv
+	source .venv/bin/activate && \
 	pytest -v test/*.py
 
 pkg-test: venv
@@ -50,7 +52,9 @@ realclean: clean
 
 venv: .venv
 	@[[ $$VIRTUAL_ENV == $$PWD/.venv ]] || { \
+	    echo; \
 	    echo "Run 'source .venv/bin/activate'"; \
+	    echo; \
 	    exit 1; \
 	}
 

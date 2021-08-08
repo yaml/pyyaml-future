@@ -1,3 +1,4 @@
+import os
 from .xxx import *
 __all__ = ['Loader']
 
@@ -7,6 +8,7 @@ from .stdlib import Library
 
 class Loader(SafeLoader):
     anchors = None
+    filepath = None
 
     def __init__(self, stream):
         SafeLoader.__init__(self, stream)
@@ -14,6 +16,11 @@ class Loader(SafeLoader):
         self.represent = representer.Representer().represent_data
         if Loader.anchors is not None:
             self.set_anchors(Loader.anchors)
+        if Loader.filepath is None:
+            self.importpath = None
+        else:
+            self.importpath = os.path.abspath(
+                os.path.dirname(Loader.filepath))
 
     def set_anchors(self, anchors):
         self.anchors = {}

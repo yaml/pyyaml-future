@@ -31,7 +31,7 @@ def XXX_load_1():
     """ Test 1 """
     stream = """\
     # A merge of 5 mappings into one:
-    merged: !+merge
+    merged: !merge
 
       # an alias ref with no anchor defined:
       - *base
@@ -40,10 +40,10 @@ def XXX_load_1():
       - +*some/foo
 
       # a yaml file (mapping) import:
-      - !+import other.yaml
+      - !import other.yaml
 
       # an external template rendering:
-      - !+render [ t1.yaml, xxx: hello ]
+      - !render [ t1.yaml, xxx: hello ]
 
       # local data mapping:
       - foo: 42               # local data to merge

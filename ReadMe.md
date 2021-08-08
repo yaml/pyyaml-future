@@ -15,8 +15,7 @@ stream = """\
 greeting: !+ |
   Hello {*name}.
   Welcome to the future!
-copyright: !+import [../data.yaml, /copyright/year]
-
+copyright: !import [../data.yaml, /copyright/year]
 """
 
 print(yaml.dump(yaml.load(stream, Loader))
@@ -75,14 +74,14 @@ For `*alias/path/value` we use `+*alias/path/value`.
 For interpolation we use `!+ Hello {*name}` instead of backticks.
 
 YAML 1.3 actually parses these new things into the same event model.
-IOW, a 1.3 parser would report `@foo(*bar,42)` as `!foo [*bar, 42]`.
+In other words, a 1.3 parser would report `@foo(*bar,42)` as `!foo [*bar, 42]`.
 Just with a cleaner syntax.
 
 ### yamlfuture current features
 
 * Merge a sequence of mappings:
   ```
-  merged: !+merge [*map1, *map2, foo: bar]
+  merged: !merge [*map1, *map2, foo: bar]
   ```
 
 * Define anchors (from Python) outside the YAML stream:
@@ -111,8 +110,8 @@ Just with a cleaner syntax.
 
 * Import other YAML files into any node:
   ```
-  foo: !+import foo.yaml
-  bar: !+import [foo.yaml, /0/bar]
+  foo: !import foo.yaml
+  bar: !import [foo.yaml, /0/bar]
   ```
 
 * Import/render external "template" yaml files:
@@ -122,7 +121,7 @@ Just with a cleaner syntax.
     bar: *value
 
   # file 'main.yaml'
-  foo bar: !+render [template.yaml, value: baz]
+  bar: !render [template.yaml, value: baz]
   ```
 
 ## License & Copyright

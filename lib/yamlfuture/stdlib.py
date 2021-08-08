@@ -1,13 +1,18 @@
 from .xxx import *
-import re
+import os, re
 
 from yaml.nodes import *
 
 class Library:
     def __init__(self, loader):
         self.loader = loader
-
         self.add_constructors()
+
+    @classmethod
+    def _import_file_path(cls, self, path):
+        if self.importpath is None:
+            raise Exception("Loader.filepath not set")
+        return os.path.join(self.importpath, path)
 
     @classmethod
     def transform_expand(cls, self, node):
@@ -17,7 +22,8 @@ class Library:
 
     @classmethod
     def transform_import(cls, self, node):
-        with open(node.value, 'r') as stream:
+        path = cls._import_file_path(self, node.value)
+        with open(path, 'r') as stream:
             from . import Loader
             loader = Loader(stream)
             return loader.get_single_data()
@@ -47,7 +53,8 @@ class Library:
             pairs = mapping.value
             for pair in pairs:
                 anchors[pair[0].value] = pair[1]
-        with open(node.value[0].value, 'r') as stream:
+        path = cls._import_file_path(self, node.value[0].value)
+        with open(path, 'r') as stream:
             from . import Loader
             loader = Loader(stream)
             loader.anchors = anchors
@@ -76,6 +83,7 @@ class Library:
     def _transform_ref_sibling(cls, self, node):
         return node.value.upper()
 
+
     # Add up the resolver and constructor settings:
     def add_constructors(self):
         loader = self.loader
@@ -87,7 +95,7 @@ class Library:
             None)
 
         loader.add_implicit_resolver(
-            '!+ref',
+            '!ref',
             re.compile(r'^\+\*'),
             None)
 
@@ -96,42 +104,42 @@ class Library:
             self.__class__.transform_expand)
 
         loader.add_constructor(
-            '!+merge',
+            '!merge',
             self.__class__.transform_merge)
 
         loader.add_constructor(
-            '!+import',
+            '!import',
             self.__class__.transform_import)
 
         loader.add_constructor(
-            '!+join',
+            '!join',
             self.__class__.transform_join)
 
         loader.add_constructor(
-            '!+ref',
+            '!ref',
             self.__class__.transform_ref)
 
         loader.add_constructor(
-            '!+render',
+            '!render',
             self.__class__.transform_render)
 
         # Internal tag constructors:
         loader.add_constructor(
-            '!+_deref',
+            '!_deref',
             self.__class__._transform_deref)
 
         loader.add_constructor(
-            '!+_ref-find',
+            '!_ref-find',
             self.__class__._transform_ref_find)
 
         loader.add_constructor(
-            '!+_ref-sibling',
+            '!_ref-sibling',
             self.__class__._transform_ref_sibling)
 
 
     # TODO move parsers to another class?
     def parse_reference(self, node, bare=False):
-        parse = SequenceNode('!+_deref', [])
+        parse = SequenceNode('!_deref', [])
         if bare:
             ref = node
         else:
@@ -147,11 +155,11 @@ class Library:
             elif sibling is not None:
                 ref = ref[sibling.end():]
                 key = sibling.group(1)
-                parse.value.append(ScalarNode('!+_ref-sibling', key))
+                parse.value.append(ScalarNode('!_ref-sibling', key))
             elif find is not None:
                 ref = ref[find.end():]
                 key = find.group(1)
-                parse.value.append(ScalarNode('!+_ref-find', key))
+                parse.value.append(ScalarNode('!_ref-find', key))
 
             else:
                 XXX(ref)
@@ -159,7 +167,7 @@ class Library:
         return parse
 
     def parse_expansion(self, node):
-        parse = SequenceNode('!+join', [])
+        parse = SequenceNode('!join', [])
         scalar = node.value[0:]
         scalar = re.sub(r'^\+`', '', scalar)
         scalar = re.sub(r'^`', '', scalar)
