@@ -1,4 +1,4 @@
-version = '0.0.5'
+version = '0.0.6'
 
 from setuptools import setup
 import pathlib
@@ -28,6 +28,9 @@ setup(
   python_requires = '>=3.6, <4',
   install_requires = [
     'pyyaml',
+  ],
+  setup_requires = [
+    'wheel',
   ],
 
   keywords = ['yaml', 'future'],
